@@ -1,3 +1,8 @@
+---
+layout: default
+title: Home
+---
+
 <!-- ==============================
      REVIEWS & INSTRUCTOR FEEDBACK
      Cards + 5-star outlines + swipe
