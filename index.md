@@ -13,7 +13,6 @@ title: Home
   <p class="rc-intro">Highlights from course feedback. Stars are based on letter grade (A=★★★★★, B=★★★★, C=★★★, D=★★, F=★).</p>
 
   <style>
-    /* ----- Scoped to .reviews-carousel so it won't leak ----- */
     .reviews-carousel{
       --accent:#39ff14;
       --chip-bg: rgba(57,255,20,.08);
@@ -22,7 +21,6 @@ title: Home
     .reviews-carousel h2{ margin-bottom:.35rem; }
     .rc-intro{ opacity:.9; margin:.25rem 0 1rem; }
 
-    /* Shell + nav */
     .rc-shell{
       display:grid;
       grid-template-columns:auto 1fr auto;
@@ -40,7 +38,6 @@ title: Home
     }
     .rc-nav:disabled{ opacity:.4; cursor:not-allowed; }
 
-    /* Viewport + track */
     .rc-viewport{
       overflow:hidden;
       border-radius:12px;
@@ -51,7 +48,6 @@ title: Home
       will-change:transform;
     }
 
-    /* Card */
     .rc-card{
       min-width:100%;
       box-sizing:border-box;
@@ -87,22 +83,15 @@ title: Home
       white-space:nowrap;
     }
 
-    /* Stars: always 5 outlines; fill only rating count */
     .rc-stars{ display:flex; gap:.15rem; align-items:center; }
-    .rc-star{
-      width:20px; height:20px;
-      display:inline-block;
-    }
+    .rc-star{ width:20px; height:20px; display:inline-block; }
     .rc-star svg{
       width:100%; height:100%;
       stroke:var(--accent); stroke-width:1.3;
       fill:transparent; opacity:.55;
     }
-    .rc-star.filled svg{
-      fill:var(--accent); opacity:1;
-    }
+    .rc-star.filled svg{ fill:var(--accent); opacity:1; }
 
-    /* Dots */
     .rc-dots{
       display:flex; gap:.4rem; justify-content:center;
       margin-top:.6rem;
@@ -114,7 +103,6 @@ title: Home
     }
     .rc-dot.active{ background:var(--accent); }
 
-    /* Responsive card padding tweak */
     @media (max-width:420px){
       .rc-card{ padding:.85rem; }
     }
@@ -129,7 +117,6 @@ title: Home
   </div>
   <div class="rc-dots" id="rc-dots" role="tablist" aria-label="Slides"></div>
 
-  <!-- Card template (cloned by JS) -->
   <template id="rc-card-tpl">
     <article class="rc-card">
       <div class="rc-top">
@@ -145,51 +132,39 @@ title: Home
   </template>
 
   <script>
-    // ==============================
-    // Reviews data — edit me 📝
-    // Put your grade as a LETTER: "A", "B", "C", "D", "F".
-    // Pluses/minuses are ignored for stars.
-    // ==============================
     const REVIEWS = [
       {
         course: "CS370: Current/Emerging Trends in Computer Science",
         reviewer: "Dr. Hawk",
-        date: "—",               // ← optional
-        grade: "A",              // ← change to your actual letter grade
-        quote:
-         "Hi Alysha, <br> Thank you for your submission! You provided a concise explanation of how neural networks operate, effectively outlining the roles of the input, hidden, and output layers. This was particularly strong in simplifying complex concepts, making them accessible to a non-technical audience.<br> Your identification of legal concerns was on point and relevant.<br>Your writing overall was coherent and logical. <br><br>Keep up the good work.<br><br>Dr. Hawk",
-        tags: ["Clarity", "AI", "Simplifying Complex Concepts", "Accessible Language", "Neural Networks", "Logical & Relevant"]
-      }
-     
+        grade: "A",
+        quote: "You provided a concise explanation of how neural networks operate, effectively outlining the roles of the input, hidden, and output layers. This was particularly strong in simplifying complex concepts, making them accessible to a non-technical audience. Your identification of legal concerns was on point and relevant.",
+        tags: ["Clarity", "AI", "Neural Networks", "Accessible Language"]
+      },
       {
         course: "CS465: Full Stack Development I",
         reviewer: "Instructor Benyam Heyi",
         grade: "B",
-        quote: "Great work on outlining all the requirements of the rubric—your structure and coverage are well thought out. For future submissions, please make sure to also complete the API endpoints table. Including this information will significantly enhance the quality of your Software Design Document (SDD) by providing clear guidance on which APIs will be available and how they should be used. This not only strengthens the technical completeness of your document but also improves communication among developers and stakeholders."
-          tags: ["API", "Software Design Document (SDD)", "Technical Completeness", "Stakeholders", "Communication"]
-       }
-    ];
-
-        {
+        quote: "Great work on outlining all the requirements of the rubric—your structure and coverage are well thought out. For future submissions, please make sure to also complete the API endpoints table. Including this information will significantly enhance the quality of your Software Design Document (SDD).",
+        tags: ["API", "SDD", "Technical Completeness", "Communication"]
+      },
+      {
         course: "CS499: Computer Science Capstone",
         reviewer: "Instructor Ramsey Kraya",
         grade: "A",
-        quote: "Alysha, your Milestone Four submission is an excellent example of a well-executed database integration. You’ve successfully enhanced your Corner Grocer application by transitioning from in-memory data handling to a persistent SQLite backend, while maintaining all original functionality and improving user experience."
-          tags: ["Database Integration", "Persistent Storage", "Backend", "SQLite", "User Experience"]
-       }
+        quote: "Your Milestone Four submission is an excellent example of a well-executed database integration. You successfully transitioned your Corner Grocer application from in-memory data handling to a persistent SQLite backend, while maintaining original functionality and improving user experience.",
+        tags: ["Database Integration", "SQLite", "Persistence", "User Experience"]
+      }
     ];
 
-    // ----- Grade → stars (letter-based, +/- ignored) -----
     function gradeToRating(grade){
       const L = String(grade || '').trim().toUpperCase().charAt(0);
       if (L === 'A') return 5;
       if (L === 'B') return 4;
       if (L === 'C') return 3;
       if (L === 'D') return 2;
-      return 1; // F or anything else
+      return 1;
     }
 
-    // ----- Star SVG helpers -----
     function starSVG(filled){
       return `
         <span class="rc-star ${filled ? 'filled' : ''}" aria-hidden="true">
@@ -204,7 +179,6 @@ title: Home
       return out;
     }
 
-    // ----- Render cards + dots -----
     const track = document.getElementById('rc-track');
     const dots  = document.getElementById('rc-dots');
     const tpl   = document.getElementById('rc-card-tpl');
@@ -212,14 +186,9 @@ title: Home
     function makeCard(item){
       const node = tpl.content.firstElementChild.cloneNode(true);
       node.querySelector('.rc-course').textContent = item.course;
-      const metaParts = [];
-      if (item.reviewer) metaParts.push(item.reviewer);
-      if (item.date)     metaParts.push(item.date);
-      if (item.grade)    metaParts.push(`Grade: ${item.grade}`);
-      node.querySelector('.rc-meta').textContent   = metaParts.join(" • ");
+      node.querySelector('.rc-meta').textContent   = `${item.reviewer} • Grade: ${item.grade}`;
       node.querySelector('.rc-quote').textContent  = `“${item.quote}”`;
-      const rating = gradeToRating(item.grade);
-      node.querySelector('.rc-stars').innerHTML = renderStars(rating);
+      node.querySelector('.rc-stars').innerHTML   = renderStars(gradeToRating(item.grade));
       const tags = node.querySelector('.rc-tags');
       (item.tags || []).forEach(t => {
         const span = document.createElement('span');
@@ -238,7 +207,6 @@ title: Home
       dots.querySelectorAll('.rc-dot').forEach(b => b.addEventListener('click', () => goTo(+b.dataset.i)));
     }
 
-    // ----- Carousel logic -----
     let index = 0;
     const prevBtn = document.querySelector('.rc-prev');
     const nextBtn = document.querySelector('.rc-next');
@@ -261,9 +229,8 @@ title: Home
 
     prevBtn.addEventListener('click', () => goTo(index - 1));
     nextBtn.addEventListener('click', () => goTo(index + 1));
-    window.addEventListener('resize', () => goTo(index)); // keep slide aligned
+    window.addEventListener('resize', () => goTo(index));
 
-    // Swipe (touch)
     let startX = null, deltaX = 0;
     const viewport = document.querySelector('.rc-viewport');
     viewport.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; deltaX = 0; }, {passive:true});
@@ -276,13 +243,11 @@ title: Home
       startX = null; deltaX = 0;
     });
 
-    // Keyboard
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft')  goTo(index - 1);
       if (e.key === 'ArrowRight') goTo(index + 1);
     });
 
-    // Kickoff
     document.addEventListener('DOMContentLoaded', renderAll);
   </script>
 </section>
